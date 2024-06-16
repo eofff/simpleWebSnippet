@@ -7,11 +7,15 @@ import (
 )
 
 type Config struct {
-	DbHost     string
-	DbPort     int
-	DbUser     string
-	DbPassword string
-	DbName     string
+	DbHost        string
+	DbPort        int
+	DbUser        string
+	DbPassword    string
+	DbName        string
+	RedisHost     string
+	RedisPort     int
+	RedisPassword string
+	RedisDb       int
 }
 
 func (c *Config) Load() {
@@ -45,5 +49,35 @@ func (c *Config) Load() {
 	c.DbName, exists = os.LookupEnv("DBNAME")
 	if !exists {
 		log.Fatal("there is no DBNAME var")
+	}
+
+	c.RedisHost, exists = os.LookupEnv("REDISHOST")
+	if !exists {
+		log.Fatal("there is no REDISHOST var")
+	}
+
+	redisPort, exists := os.LookupEnv("REDISPORT")
+	if !exists {
+		log.Fatal("there is no REDISPORT var")
+	}
+
+	c.RedisPort, err = strconv.Atoi(redisPort)
+	if err != nil {
+		log.Fatal("REDISPORT var incorrect")
+	}
+
+	c.RedisPassword, exists = os.LookupEnv("REDISPASSWORD")
+	if !exists {
+		log.Fatal("there is no REDISPASSWORD var")
+	}
+
+	redisDb, exists := os.LookupEnv("REDISDB")
+	if !exists {
+		log.Fatal("there is no REDISDB var")
+	}
+
+	c.RedisDb, err = strconv.Atoi(redisDb)
+	if err != nil {
+		log.Fatal("REDISDB var incorrect")
 	}
 }

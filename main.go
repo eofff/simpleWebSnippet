@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"gosample/migrations"
+	"gosample/redisApi"
 	"log"
 	"os"
 
@@ -24,6 +25,11 @@ func main() {
 	}
 
 	config.Load()
+
+	err := redisApi.Init(config.RedisHost, config.RedisPort, config.RedisPassword, config.RedisDb)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName)
 	fmt.Println(psqlconn)
