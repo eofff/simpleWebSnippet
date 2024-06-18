@@ -3,14 +3,15 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"gosample/controllers"
 	"gosample/migrations"
 	"gosample/redisApi"
 	"gosample/repository"
-	"gosample/services"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 )
 
@@ -34,41 +35,23 @@ func main() {
 	}
 
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName)
-	fmt.Println(psqlconn)
 
-	// open database
 	db, err := sql.Open("postgres", psqlconn)
 	CheckError(err)
 
-	// close database
 	defer db.Close()
 
-	// check db
 	err = db.Ping()
 	CheckError(err)
 
 	migrations.Migrate(db)
 	repository.Init(db)
 
-	result, err := services.SampleGetById(1)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(result)
-
-	resultB, err := redisApi.Exists("kek")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(resultB)
-
-	// e := echo.New()
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "Hello, World!")
-	// })
-	// e.Logger.Fatal(e.Start(":1323"))
+	e := echo.New()
+	e.GET("/", controllers.IndexGetAll)
+	e.GET("/:id", controllers.IndexGetById)
+	e.POST("/", controllers.IndexPost)
+	e.Logger.Fatal(e.Start(":" + config.HTTPPort))
 }
 
 func CheckError(err error) {

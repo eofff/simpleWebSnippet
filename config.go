@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	HTTPPort      string
 	DbHost        string
 	DbPort        int
 	DbUser        string
@@ -79,5 +80,10 @@ func (c *Config) Load() {
 	c.RedisDb, err = strconv.Atoi(redisDb)
 	if err != nil {
 		log.Fatal("REDISDB var incorrect")
+	}
+
+	c.HTTPPort, exists = os.LookupEnv("HTTP_PORT")
+	if !exists {
+		log.Fatal("there is no HTTP_PORT var")
 	}
 }
