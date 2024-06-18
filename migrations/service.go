@@ -22,6 +22,29 @@ var (
 )
 
 func Migrate(db *sql.DB) {
+	rows, err := db.Query(`SELECT EXISTS (
+						SELECT FROM information_schema.tables 
+						WHERE  table_schema = 'public'
+						AND    table_name   = '_migrations'
+						);`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var migrationTableExists bool
+	rows.Next()
+	err = rows.Scan(&migrationTableExists)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !migrationTableExists {
+		_, err = db.Query("CREATE TABLE _migrations (name varchar PRIMARY KEY);")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	readMigrationsFolder()
 	readMigrationTable(db)
 

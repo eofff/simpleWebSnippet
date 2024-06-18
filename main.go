@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"gosample/migrations"
 	"gosample/redisApi"
+	"gosample/repository"
+	"gosample/services"
 	"log"
 	"os"
 
@@ -46,6 +48,27 @@ func main() {
 	CheckError(err)
 
 	migrations.Migrate(db)
+	repository.Init(db)
+
+	result, err := services.SampleGetById(1)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(result)
+
+	resultB, err := redisApi.Exists("kek")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resultB)
+
+	// e := echo.New()
+	// e.GET("/", func(c echo.Context) error {
+	// 	return c.String(http.StatusOK, "Hello, World!")
+	// })
+	// e.Logger.Fatal(e.Start(":1323"))
 }
 
 func CheckError(err error) {
